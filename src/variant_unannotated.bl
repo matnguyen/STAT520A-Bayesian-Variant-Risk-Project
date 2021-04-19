@@ -1,0 +1,27 @@
+model Variants {
+
+  param GlobalDataSource data
+
+  param Plate<String> variants
+  random Plated<IntVar> num_severe
+  param Plate<String> var_type
+  random Plated<RealVar> frequency
+  random Plated<IntVar> num_freq
+
+  random Plated<RealVar> severity
+
+  random RealVar a?: latentReal, b?: latentReal
+
+  laws {
+    a ~ Exponential(0.001)
+    b ~ Exponential(0.001)
+
+    for (Index<String> variant : variants.indices) {
+      severity.get(variant) | a,b ~ Beta(a, b)
+
+      num_severe.get(variant) | RealVar severe = severity.get(variant),
+                                IntVar num = num_freq.get(variant)
+                              ~ Binomial(num, severe)
+    }
+  }
+}
