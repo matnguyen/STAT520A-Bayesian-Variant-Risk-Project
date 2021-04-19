@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+src/.blang-compilation
+src/.ipynb_checkpoints
+src/results
