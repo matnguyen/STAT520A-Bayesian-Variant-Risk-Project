@@ -1,27 +1,30 @@
+// This model only takes into consideration the number of severe cases and
+// the frequency of each variant.
+
 model Variants {
 
   param GlobalDataSource data
 
   param Plate<String> variants
   random Plated<IntVar> num_severe
-  param Plate<String> var_type
-  random Plated<RealVar> frequency
-  random Plated<IntVar> num_freq
+  param Plated<IntVar> num_freq
+  param Plated<RealVar> frequency
 
-  random Plated<RealVar> severity
+  random Plated<RealVar> risks
 
-  random RealVar a?: latentReal, b?: latentReal
+  random IntVar a?: latentInt, b?: latentInt
 
   laws {
-    a ~ Exponential(0.001)
-    b ~ Exponential(0.001)
+    a ~ Poisson(1)
+    b ~ Poisson(1)
 
     for (Index<String> variant : variants.indices) {
-      severity.get(variant) | a,b ~ Beta(a, b)
+      risks.get(variant) | a,b ~ Gamma(5, 10)
 
-      num_severe.get(variant) | RealVar severe = severity.get(variant),
-                                IntVar num = num_freq.get(variant)
-                              ~ Binomial(num, severe)
+      num_severe.get(variant) | RealVar risk = risks.get(variant),
+                                IntVar num = num_freq.get(variant),
+                                RealVar freq = frequency.get(variant)
+                              ~ Binomial(num, risk * freq)
     }
   }
 }
