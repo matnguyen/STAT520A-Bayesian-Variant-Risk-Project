@@ -6,17 +6,17 @@ model Variants {
   param GlobalDataSource data
 
   param Plate<String> variants
-  random Plated<IntVar> num_severe
   param Plated<IntVar> num_freq
   param Plated<RealVar> frequency
 
+  random Plated<IntVar> num_severe
   random Plated<IntVar> Z_j
   random Plated<RealVar> gamma_j
 
   random RealVar eta ?: latentReal
 
   laws {
-    eta ~ Beta(1, 10)
+    eta ~ Beta(1, 100)
 
     for (Index<String> variant : variants.indices) {
       gamma_j.get(variant) ~ Gamma(2, 1)
