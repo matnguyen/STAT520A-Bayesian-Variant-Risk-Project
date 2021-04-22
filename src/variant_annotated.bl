@@ -18,7 +18,7 @@ model Annotated_variants {
 
   laws {
     for (Index<String> g : gene.indices){
-      eta_j.get(g) ~ Beta(1, 10)
+      eta_j.get(g) ~ Beta(1, 100)
 
       for (Index<String> variant : variants.indices(g)) {
         gamma_j.get(variant, g) | RealVar eff = effect.get(variant, g)
