@@ -6,3 +6,4 @@ src/.blang-compilation
 src/.ipynb_checkpoints
 src/results/
 results/
+data/snpeff_fixed_updated.vcf
