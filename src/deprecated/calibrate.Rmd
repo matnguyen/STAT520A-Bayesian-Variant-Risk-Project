@@ -1,0 +1,56 @@
+---
+title: "Calibration"
+author: "Matthew Nguyen"
+date: "23/04/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(rstan)
+```
+
+```{r}
+sim_values <- list(
+  N = 3000,
+  beta_alpha = 1,
+  beta_beta = 100,
+  gamma_alpha = 2,
+  gamma_beta = 1,
+  poisson_lambda = 32
+)
+
+sim_data <- stan(
+  file = "simulated_unannotated_data.stan",
+  data = sim_values,
+  iter = 1,
+  chains = 1,
+  seed = 667,
+  algorithm = 'Fixed_param'
+)
+
+sim_y <- extract(sim_data)$y
+sim_gamma <- extract(sim_data)$gamma
+sim_freq <- extract(sim_data)$freq
+sim_num_severe <- extract(sim_data)$num
+sim_freq <- extract(sim_data)$all_freq
+sim_num <- extract(sim_data)$all_num
+```
+
+```{r}
+data <- list(
+  N = length(sim_y),
+  freq = as.vector(sim_freq),
+  num = as.array(sim_num_severe),
+  y = as.array(sim_y)
+)
+
+fit <- stan(
+  file = "unannotated_hierarchical.stan",
+  data = data,
+  seed = 667
+)
+```
