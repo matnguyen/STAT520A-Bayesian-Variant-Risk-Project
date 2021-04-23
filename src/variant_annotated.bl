@@ -1,5 +1,5 @@
-// This model only takes into consideration the number of severe cases and
-// the frequency of each variant.
+// This model takes into consideration the number of severe cases,
+// the frequency of each variant and the variant annotation.
 
 model Annotated_variants {
 
