@@ -12,23 +12,23 @@ model Annotated_variants {
   param Plated<RealVar> effect
 
   random Plated<IntVar> num_severe
-  random Plated<IntVar> Z_j
-  random Plated<RealVar> gamma_j
-  random Plated<RealVar> eta_j
+  random Plated<IntVar> Z_i
+  random Plated<RealVar> gamma_i
+  random Plated<RealVar> eta_i
 
   laws {
     for (Index<String> g : gene.indices){
-      eta_j.get(g) ~ Beta(1, 100)
+      eta_i.get(g) ~ Beta(1, 100)
 
       for (Index<String> variant : variants.indices(g)) {
-        gamma_j.get(variant, g) | RealVar eff = effect.get(variant, g)
+        gamma_i.get(variant, g) | RealVar eff = effect.get(variant, g)
                                 ~ Gamma(eff, 1)
 
-        Z_j.get(variant, g) | RealVar eta = eta_j.get(g)
+        Z_i.get(variant, g) | RealVar eta = eta_i.get(g)
                             ~ Bernoulli(eta)
 
-        num_severe.get(variant, g) | IntVar Z =  Z_j.get(variant, g),
-                                     RealVar gamma = gamma_j.get(variant, g),
+        num_severe.get(variant, g) | IntVar Z =  Z_i.get(variant, g),
+                                     RealVar gamma = gamma_i.get(variant, g),
                                      IntVar num = num_freq.get(variant, g),
                                      RealVar freq = frequency.get(variant, g)
                                    ~ Binomial(num, if (Z < 1) freq else (freq * gamma))

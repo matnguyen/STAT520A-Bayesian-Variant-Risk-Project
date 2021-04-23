@@ -10,8 +10,8 @@ model Variants {
   param Plated<RealVar> frequency
 
   random Plated<IntVar> num_severe
-  random Plated<IntVar> Z_j
-  random Plated<RealVar> gamma_j
+  random Plated<IntVar> Z_i
+  random Plated<RealVar> gamma_i
 
   random RealVar eta ?: latentReal
 
@@ -19,12 +19,12 @@ model Variants {
     eta ~ Beta(1, 100)
 
     for (Index<String> variant : variants.indices) {
-      gamma_j.get(variant) ~ Gamma(2, 1)
+      gamma_i.get(variant) ~ Gamma(2, 1)
 
-      Z_j.get(variant) | eta ~ Bernoulli(eta)
+      Z_i.get(variant) | eta ~ Bernoulli(eta)
 
-      num_severe.get(variant) | IntVar Z =  Z_j.get(variant),
-                                RealVar gamma = gamma_j.get(variant),
+      num_severe.get(variant) | IntVar Z =  Z_i.get(variant),
+                                RealVar gamma = gamma_i.get(variant),
                                 IntVar num = num_freq.get(variant),
                                 RealVar freq = frequency.get(variant)
                               ~ Binomial(num, if (Z < 1) freq else (freq * gamma))
