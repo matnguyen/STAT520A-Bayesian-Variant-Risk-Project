@@ -9,22 +9,71 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Loading libraries and data
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+df <- read.csv('../data/variants.csv')
 ```
 
-## Including Plots
+## Distribution of frequencies
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r}
+ggplot(df, aes(x=frequency)) + 
+  geom_histogram()
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+We see that most of the variant frequencies are very low. Let's look closer at the distribution there.
+
+```{r}
+ggplot(df[df[, 'frequency'] < 0.01,], aes(x=frequency)) + 
+  geom_histogram()
+```
+
+Now let's look at the frequencies for each variant impact level
+
+```{r}
+ggplot(df[df[, 'impact'] == 'HIGH',], aes(x=frequency)) + 
+  geom_histogram() + 
+  labs(title='High impact')
+```
+
+```{r}
+ggplot(df[df[, 'impact'] == 'MODERATE',], aes(x=frequency)) + 
+  geom_histogram() + 
+  labs(title='Moderate impact')
+```
+
+```{r}
+ggplot(df[df[, 'impact'] == 'LOW',], aes(x=frequency)) + 
+  geom_histogram() + 
+  labs(title='Low impact')
+```
+
+```{r}
+ggplot(df[df[, 'impact'] == 'MODIFIER',], aes(x=frequency)) + 
+  geom_histogram() + 
+  labs(title='Intergenic impact')
+```
+
+Now let's look at the distribution of estimated risk probability for each variant (calculated by the number of severe cases divided by the number of cases containing the variant, because of the binomial distribution). This will help us choose a prior.
+
+```{r}
+df %>%
+  mutate(prob = num_severe / num_freq) %>%
+  ggplot(aes(x=prob)) + 
+    geom_histogram() + 
+    labs(x='numberOfSevereCases/numberOfCasesWithVariant')
+```
+The distribution has many irregularities, with a large peak at 1. What if we do this for variants that are in at least 1% of samples?
+
+```{r}
+df[df[, 'frequency'] > 0.01,] %>%
+  mutate(prob = num_severe / num_freq) %>%
+  ggplot(aes(x=prob)) + 
+    geom_histogram() + 
+    labs(x='numberOfSevereCases/numberOfCasesWithVariant')
+```
